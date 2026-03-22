@@ -15,6 +15,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Palette, Spacing, Radius, FontSize, FontWeight } from '../tokens/index';
 import { COMPONENTS, FLOWS } from '../playground.config';
 import { TokensTab } from './TokensViewer';
+import { PlaygroundThemeContext, lightColors, darkColors } from './ThemeContext';
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 
@@ -104,15 +105,9 @@ export const PlaygroundShell = () => {
           onPress={() => setDarkMode(v => !v)}
           activeOpacity={0.7}
         >
-          <Text style={[s.toggleLabel, { color: t.textSecondary }]}>
+          <Text style={s.toggleLabel}>
             {darkMode ? '☀️' : '🌙'}
           </Text>
-          <View style={[s.toggleTrack, { backgroundColor: darkMode ? t.tabActive : t.border }]}>
-            <View style={[s.toggleThumb, {
-              alignSelf: darkMode ? 'flex-end' : 'flex-start',
-              backgroundColor: darkMode ? t.topbar : t.textSecondary,
-            }]} />
-          </View>
         </TouchableOpacity>
       </View>
 
@@ -192,9 +187,11 @@ export const PlaygroundShell = () => {
                       // @ts-ignore
                       transformOrigin: 'top left',
                     }]}>
-                      <NavigationContainer key={flowKey} independent>
-                        <ActiveFlow />
-                      </NavigationContainer>
+                      <PlaygroundThemeContext.Provider value={{ isDark: darkMode, colors: darkMode ? darkColors : lightColors }}>
+                        <NavigationContainer key={flowKey} independent>
+                          <ActiveFlow />
+                        </NavigationContainer>
+                      </PlaygroundThemeContext.Provider>
                     </View>
                   </View>
                 </View>
@@ -206,9 +203,11 @@ export const PlaygroundShell = () => {
                       // @ts-ignore
                       transformOrigin: 'top left',
                     }]}>
-                      <NavigationContainer key={flowKey} independent>
-                        <ActiveFlow />
-                      </NavigationContainer>
+                      <PlaygroundThemeContext.Provider value={{ isDark: darkMode, colors: darkMode ? darkColors : lightColors }}>
+                        <NavigationContainer key={flowKey} independent>
+                          <ActiveFlow />
+                        </NavigationContainer>
+                      </PlaygroundThemeContext.Provider>
                     </View>
                   </View>
                 </ScrollView>
@@ -231,10 +230,8 @@ const s = StyleSheet.create({
   tabItem:          { alignItems: 'center', paddingBottom: 2 },
   tabLabel:         { fontSize: FontSize.sm, fontWeight: FontWeight.medium as any },
   tabIndicator:     { position: 'absolute', bottom: -16, left: 0, right: 0, height: 2, borderRadius: 1 },
-  toggle:           { flexDirection: 'row', alignItems: 'center', gap: Spacing[2], paddingVertical: Spacing[1], paddingHorizontal: Spacing[3], borderRadius: Radius.full, borderWidth: 1 },
-  toggleTrack:      { width: 28, height: 16, borderRadius: Radius.full, padding: 2, justifyContent: 'center' },
-  toggleThumb:      { width: 12, height: 12, borderRadius: 6 },
-  toggleLabel:      { fontSize: FontSize.sm },
+  toggle:           { paddingVertical: Spacing[1], paddingHorizontal: Spacing[3], borderRadius: Radius.full, borderWidth: 1 },
+  toggleLabel:      { fontSize: FontSize.base },
   body:             { flex: 1, flexDirection: 'row' },
   sidebar:          { width: 180, borderRightWidth: 1, paddingTop: Spacing[4], paddingHorizontal: Spacing[3], gap: Spacing[1] },
   navItem:          { paddingVertical: Spacing[2], paddingHorizontal: Spacing[3], borderRadius: Radius.lg },

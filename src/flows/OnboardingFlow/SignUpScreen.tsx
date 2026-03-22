@@ -3,14 +3,16 @@ import { View, StyleSheet } from 'react-native';
 import { Typography } from '../../components/Typography';
 import { Button } from '../../components/Button';
 import { InputField } from '../../components/index';
-import { Colors, Spacing } from '../../tokens';
+import { Spacing } from '../../tokens';
+import { useScreenColors } from '../../_shell/ThemeContext';
 
 export const SignUpScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const { colors } = useScreenColors();
 
   return (
-    <View style={styles.root}>
+    <View style={[styles.root, { backgroundColor: colors.bgBase }]}>
       <View style={styles.body}>
         <Typography variant="heading-xl">Create account</Typography>
         <Typography variant="body-md" color="textSecondary" style={{ marginTop: Spacing[1], marginBottom: Spacing[6] }}>
@@ -32,7 +34,6 @@ export const SignUpScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: Colors.bgBase,
     padding: Spacing[6],
     justifyContent: 'space-between',
   },
