@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import {
   Palette, Colors, FontSize, FontWeight, FontFamily,
@@ -6,40 +6,50 @@ import {
   Duration, IconSize, ZIndex,
 } from '../tokens/index';
 
+// ─── Theme context (avoids prop-drilling into every row) ──────────────────────
+
+type ThemeTokens = {
+  sidebar: string; border: string; textPrimary: string; textSecondary: string;
+  navActive: string; surface: string; bg: string;
+};
+
+const ThemeCtx = createContext<ThemeTokens | null>(null);
+const useTheme = () => useContext(ThemeCtx)!;
+
 // ─── Category definitions ─────────────────────────────────────────────────────
 
 const CATEGORIES = [
-  'Colors',
-  'Palette',
-  'Spacing',
-  'Typography',
-  'Radius',
-  'Shadows',
-  'Z-Index',
-  'Duration',
+  'Colors', 'Palette', 'Spacing', 'Typography', 'Radius', 'Shadows', 'Z-Index', 'Duration',
 ] as const;
 
 type Category = typeof CATEGORIES[number];
 
 // ─── Row primitives ───────────────────────────────────────────────────────────
 
-const Row = ({ left, right }: { left: React.ReactNode; right: React.ReactNode }) => (
-  <View style={s.row}>
-    <View style={s.rowLeft}>{left}</View>
-    <View style={s.rowRight}>{right}</View>
-  </View>
-);
+const Row = ({ left, right }: { left: React.ReactNode; right: React.ReactNode }) => {
+  const t = useTheme();
+  return (
+    <View style={[s.row, { borderBottomColor: t.border }]}>
+      <View style={s.rowLeft}>{left}</View>
+      <View style={s.rowRight}>{right}</View>
+    </View>
+  );
+};
 
-const Label = ({ name, sub }: { name: string; sub?: string }) => (
-  <View>
-    <Text style={s.tokenName}>{name}</Text>
-    {sub ? <Text style={s.tokenSub}>{sub}</Text> : null}
-  </View>
-);
+const Label = ({ name, sub }: { name: string; sub?: string }) => {
+  const t = useTheme();
+  return (
+    <View>
+      <Text style={[s.tokenName, { color: t.textPrimary }]}>{name}</Text>
+      {sub ? <Text style={[s.tokenSub, { color: t.textSecondary }]}>{sub}</Text> : null}
+    </View>
+  );
+};
 
-const Value = ({ text }: { text: string }) => (
-  <Text style={s.tokenValue}>{text}</Text>
-);
+const Value = ({ text }: { text: string }) => {
+  const t = useTheme();
+  return <Text style={[s.tokenValue, { color: t.textSecondary }]}>{text}</Text>;
+};
 
 const Divider = ({ label }: { label: string }) => (
   <Text style={s.groupLabel}>{label}</Text>
@@ -139,38 +149,41 @@ const SpacingView = () => (
   </View>
 );
 
-const TypographyView = () => (
-  <View style={s.content}>
-    <Divider label="Font Family" />
-    {Object.entries(FontFamily).map(([k, v]) => (
-      <Row key={k} left={<Label name={`FontFamily.${k}`} />} right={<Value text={v} />} />
-    ))}
-    <Divider label="Font Size" />
-    {Object.entries(FontSize).map(([k, v]) => (
-      <Row
-        key={k}
-        left={<Label name={`FontSize.${k}`} sub={`${v}px`} />}
-        right={<Text style={{ fontSize: v as number, color: '#0F172A', lineHeight: (v as number) * 1.4 }}>Aa</Text>}
-      />
-    ))}
-    <Divider label="Font Weight" />
-    {Object.entries(FontWeight).map(([k, v]) => (
-      <Row
-        key={k}
-        left={<Label name={`FontWeight.${k}`} sub={v} />}
-        right={<Text style={{ fontSize: 16, fontWeight: v as any, color: '#0F172A' }}>The quick brown fox</Text>}
-      />
-    ))}
-    <Divider label="Line Height" />
-    {Object.entries(LineHeight).map(([k, v]) => (
-      <Row key={k} left={<Label name={`LineHeight.${k}`} />} right={<Value text={String(v)} />} />
-    ))}
-    <Divider label="Letter Spacing" />
-    {Object.entries(LetterSpacing).map(([k, v]) => (
-      <Row key={k} left={<Label name={`LetterSpacing.${k}`} sub={`${v}px`} />} right={<Value text={String(v)} />} />
-    ))}
-  </View>
-);
+const TypographyView = () => {
+  const t = useTheme();
+  return (
+    <View style={s.content}>
+      <Divider label="Font Family" />
+      {Object.entries(FontFamily).map(([k, v]) => (
+        <Row key={k} left={<Label name={`FontFamily.${k}`} />} right={<Value text={v} />} />
+      ))}
+      <Divider label="Font Size" />
+      {Object.entries(FontSize).map(([k, v]) => (
+        <Row
+          key={k}
+          left={<Label name={`FontSize.${k}`} sub={`${v}px`} />}
+          right={<Text style={{ fontSize: v as number, color: t.textPrimary, lineHeight: (v as number) * 1.4 }}>Aa</Text>}
+        />
+      ))}
+      <Divider label="Font Weight" />
+      {Object.entries(FontWeight).map(([k, v]) => (
+        <Row
+          key={k}
+          left={<Label name={`FontWeight.${k}`} sub={v} />}
+          right={<Text style={{ fontSize: 16, fontWeight: v as any, color: t.textPrimary }}>The quick brown fox</Text>}
+        />
+      ))}
+      <Divider label="Line Height" />
+      {Object.entries(LineHeight).map(([k, v]) => (
+        <Row key={k} left={<Label name={`LineHeight.${k}`} />} right={<Value text={String(v)} />} />
+      ))}
+      <Divider label="Letter Spacing" />
+      {Object.entries(LetterSpacing).map(([k, v]) => (
+        <Row key={k} left={<Label name={`LetterSpacing.${k}`} sub={`${v}px`} />} right={<Value text={String(v)} />} />
+      ))}
+    </View>
+  );
+};
 
 const RadiusView = () => (
   <View style={s.content}>
@@ -229,22 +242,14 @@ const RENDERERS: Record<Category, React.FC> = {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 
-export const TokensTab = ({
-  t,
-}: {
-  t: {
-    sidebar: string; border: string; textPrimary: string; textSecondary: string;
-    navActive: string; surface: string; bg: string;
-  };
-}) => {
+export const TokensTab = ({ t }: { t: ThemeTokens }) => {
   const [active, setActive] = useState<Category>('Colors');
   const Renderer = RENDERERS[active];
 
   return (
-    <>
+    <ThemeCtx.Provider value={t}>
       {/* Sidebar */}
       <View style={[s.sidebar, { backgroundColor: t.sidebar, borderRightColor: t.border }]}>
-        {/* File reference */}
         <View style={[s.fileRef, { borderBottomColor: t.border }]}>
           <Text style={[s.fileRefLabel, { color: t.textSecondary }]}>Source</Text>
           <Text style={[s.fileRefPath, { color: t.textPrimary }]}>src/tokens/index.ts</Text>
@@ -274,7 +279,7 @@ export const TokensTab = ({
           </View>
         </ScrollView>
       </View>
-    </>
+    </ThemeCtx.Provider>
   );
 };
 
@@ -344,7 +349,6 @@ const s = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing[2],
     borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
     gap: Spacing[4],
   },
   rowLeft: {
@@ -356,17 +360,14 @@ const s = StyleSheet.create({
   tokenName: {
     fontSize: FontSize.sm,
     fontWeight: FontWeight.medium as any,
-    color: '#0F172A',
     fontFamily: 'monospace',
   },
   tokenSub: {
     fontSize: FontSize.xs,
-    color: '#94A3B8',
     marginTop: 2,
   },
   tokenValue: {
     fontSize: FontSize.sm,
-    color: '#64748B',
     fontFamily: 'monospace',
   },
   swatchGrid: {
