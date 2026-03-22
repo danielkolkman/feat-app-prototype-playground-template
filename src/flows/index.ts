@@ -1,5 +1,8 @@
-import { OnboardingFlow } from './OnboardingFlow';
+import type React from 'react';
 
-export const FLOWS = [
-  { name: 'Onboarding', component: OnboardingFlow },
+// ✏️  Import and register your flows here, e.g.:
+// import { MyFlow } from './MyFlow';
+
+export const FLOWS: { name: string; component: React.ComponentType }[] = [
+  // { name: 'My Flow', component: MyFlow },
 ];

@@ -1,32 +1,28 @@
 /**
- * playground.config.ts
+ * src/playground.config.ts
  *
- * This is the only file you need to edit when using this playground
- * for a new project. Register your components and flows below.
+ * Register your components and flows here.
+ * This is the only file you need to edit to wire up the playground.
  *
- * Steps for a new project:
+ * Steps:
  *  1. Replace src/tokens/index.ts with your design tokens
- *  2. Replace src/components/ with your React Native components
- *  3. Add component preview screens to src/screens/
- *  4. Add user flows to src/flows/
- *  5. Register everything below
+ *  2. Add your React Native components to src/components/
+ *  3. Create a preview screen per component in src/screens/
+ *  4. Add app flows to src/flows/ and register them in src/flows/index.ts
+ *  5. Import and register everything below
+ *
+ * See examples/ for a full reference implementation.
  */
 
-import { ButtonScreen }     from './screens/ButtonScreen';
-import { BadgeScreen }      from './screens/BadgeScreen';
-import { TypographyScreen } from './screens/TypographyScreen';
-import { CardScreen }       from './screens/CardScreen';
-import { InputScreen }      from './screens/InputScreen';
-import { AvatarScreen }     from './screens/AvatarScreen';
-import { FLOWS }            from './flows';
+import type React from 'react';
+import { FLOWS } from './flows';
 
-export const COMPONENTS = [
-  { name: 'Button',     component: ButtonScreen },
-  { name: 'Badge',      component: BadgeScreen },
-  { name: 'Typography', component: TypographyScreen },
-  { name: 'Card',       component: CardScreen },
-  { name: 'Input',      component: InputScreen },
-  { name: 'Avatar',     component: AvatarScreen },
+// ✏️  Import your component preview screens here, e.g.:
+// import { ButtonScreen } from './screens/ButtonScreen';
+
+export const COMPONENTS: { name: string; component: React.ComponentType }[] = [
+  // ✏️  Register your components here, e.g.:
+  // { name: 'Button', component: ButtonScreen },
 ];
 
 export { FLOWS };

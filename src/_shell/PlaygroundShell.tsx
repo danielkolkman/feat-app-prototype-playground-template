@@ -8,7 +8,7 @@
 
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, ScrollView,
+  View, Text, TouchableOpacity, ScrollView, Modal,
   SafeAreaView, StyleSheet, useWindowDimensions,
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -16,6 +16,7 @@ import { Palette, Spacing, Radius, FontSize, FontWeight } from '../tokens/index'
 import { COMPONENTS, FLOWS } from '../playground.config';
 import { TokensTab } from './TokensViewer';
 import { PlaygroundThemeContext, lightColors, darkColors } from './ThemeContext';
+import { DefaultScreen } from './DefaultScreen';
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 
@@ -47,6 +48,56 @@ const dark = {
   tabIndicator: Palette.neutral0,
 };
 
+// ─── Empty state ─────────────────────────────────────────────────────────────
+
+const Step = ({ n, text, t }: { n: number; text: string; t: typeof light }) => (
+  <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: Spacing[3] }}>
+    <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: t.navActive, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: FontSize.xs, fontWeight: FontWeight.bold as any, color: t.textPrimary }}>{n}</Text>
+    </View>
+    <Text style={{ fontSize: FontSize.sm, color: t.textSecondary, flex: 1, lineHeight: 20 }}>{text}</Text>
+  </View>
+);
+
+const HowToOverlay = ({ tab, t, onClose }: { tab: 'components' | 'screens'; t: typeof light; onClose: () => void }) => {
+  const isComponents = tab === 'components';
+  return (
+    <Modal transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={s2.backdrop} activeOpacity={1} onPress={onClose}>
+        <View style={[s2.sheet, { backgroundColor: t.surface }]} onStartShouldSetResponder={() => true}>
+          <View style={s2.sheetHeader}>
+            <Text style={{ fontSize: FontSize.lg, fontWeight: FontWeight.semibold as any, color: t.textPrimary }}>
+              {isComponents ? 'Adding components' : 'Adding flows'}
+            </Text>
+            <TouchableOpacity onPress={onClose} hitSlop={12}>
+              <Text style={{ fontSize: FontSize.lg, color: t.textSecondary }}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={{ gap: Spacing[4] }}>
+            {isComponents ? (
+              <>
+                <Step n={1} t={t} text="Add your tokens to src/tokens/index.ts" />
+                <Step n={2} t={t} text="Drop your components into src/components/" />
+                <Step n={3} t={t} text="Create a preview screen in src/screens/" />
+                <Step n={4} t={t} text="Register it in src/playground.config.ts" />
+              </>
+            ) : (
+              <>
+                <Step n={1} t={t} text="Create a folder in src/flows/YourFlow/" />
+                <Step n={2} t={t} text="Add screens and a stack navigator inside it" />
+                <Step n={3} t={t} text="Register it in src/flows/index.ts" />
+              </>
+            )}
+          </View>
+          <Text style={{ fontSize: FontSize.xs, color: t.textSecondary, marginTop: Spacing[4] }}>
+            See <Text style={{ fontFamily: 'monospace' }}>examples/</Text> for a full reference implementation
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type Tab = 'screens' | 'components' | 'tokens';
@@ -63,6 +114,7 @@ export const PlaygroundShell = () => {
   const [activeFlow, setActiveFlow]     = useState(0);
   const [darkMode, setDarkMode]         = useState(false);
   const [flowKey, setFlowKey]           = useState(0);
+  const [showHowTo, setShowHowTo]       = useState(false);
   const [scale, setScale]               = useState<Scale>('fit');
   const { width: winW, height: winH }   = useWindowDimensions();
   const t = darkMode ? dark : light;
@@ -79,8 +131,8 @@ export const PlaygroundShell = () => {
   const canvasW = Math.round(PHONE_W * resolvedScale);
   const canvasH = Math.round(PHONE_H * resolvedScale);
 
-  const ActiveComponent = COMPONENTS[activeComponent].component;
-  const ActiveFlow      = FLOWS[activeFlow].component;
+  const ActiveComponent = COMPONENTS[activeComponent]?.component;
+  const ActiveFlow      = FLOWS[activeFlow]?.component;
 
   return (
     <SafeAreaView style={[s.root, { backgroundColor: t.bg }]}>
@@ -91,7 +143,7 @@ export const PlaygroundShell = () => {
 
         <View style={s.tabs}>
           {(['screens', 'components', 'tokens'] as Tab[]).map(id => (
-            <TouchableOpacity key={id} style={s.tabItem} onPress={() => setTab(id)}>
+            <TouchableOpacity key={id} style={s.tabItem} onPress={() => { setTab(id); setShowHowTo(false); }}>
               <Text style={[s.tabLabel, { color: tab === id ? t.tabActive : t.tabInactive }]}>
                 {id.charAt(0).toUpperCase() + id.slice(1)}
               </Text>
@@ -119,6 +171,7 @@ export const PlaygroundShell = () => {
 
         ) : tab === 'components' ? (
           <>
+            {showHowTo && <HowToOverlay tab="components" t={t} onClose={() => setShowHowTo(false)} />}
             <View style={[s.sidebar, { backgroundColor: t.sidebar, borderRightColor: t.border }]}>
               {COMPONENTS.map((c, i) => (
                 <TouchableOpacity
@@ -134,20 +187,32 @@ export const PlaygroundShell = () => {
                   </Text>
                 </TouchableOpacity>
               ))}
+              <TouchableOpacity style={[s.howToBtn, { borderColor: t.border }]} onPress={() => setShowHowTo(true)}>
+                <Text style={[s.howToBtnLabel, { color: t.textSecondary }]}>Get started?</Text>
+              </TouchableOpacity>
             </View>
             <View style={s.content}>
               <ScrollView contentContainerStyle={s.componentScroll}>
-                <View style={[s.componentPreview, { backgroundColor: t.surface }]}>
-                  <ActiveComponent />
-                </View>
+                {ActiveComponent && (
+                  <View style={[s.componentPreview, { backgroundColor: t.surface }]}>
+                    <ActiveComponent />
+                  </View>
+                )}
               </ScrollView>
             </View>
           </>
 
         ) : (
           <>
+            {showHowTo && <HowToOverlay tab="screens" t={t} onClose={() => setShowHowTo(false)} />}
             <View style={[s.sidebar, { backgroundColor: t.sidebar, borderRightColor: t.border }]}>
-              {FLOWS.map((f, i) => (
+              {FLOWS.length === 0 ? (
+                <View style={[s.navItem, { backgroundColor: t.navActive }]}>
+                  <Text style={[s.navLabel, s.navLabelActive, { color: t.textPrimary }]}>
+                    Starting Screen
+                  </Text>
+                </View>
+              ) : FLOWS.map((f, i) => (
                 <TouchableOpacity
                   key={f.name}
                   style={[s.navItem, i === activeFlow && { backgroundColor: t.navActive }]}
@@ -161,8 +226,26 @@ export const PlaygroundShell = () => {
                   </Text>
                 </TouchableOpacity>
               ))}
+              <TouchableOpacity style={[s.howToBtn, { borderColor: t.border }]} onPress={() => setShowHowTo(true)}>
+                <Text style={[s.howToBtnLabel, { color: t.textSecondary }]}>Get started?</Text>
+              </TouchableOpacity>
             </View>
             <View style={s.content}>
+              {FLOWS.length === 0 ? (
+                <PlaygroundThemeContext.Provider value={{ isDark: darkMode, colors: darkMode ? darkColors : lightColors }}>
+                  <View style={[s.phoneWrapper, { flex: 1 }]}>
+                    <View style={{ width: canvasW, height: canvasH, overflow: 'hidden', borderRadius: Radius['2xl'] }}>
+                      <View style={[s.phoneCanvas, { backgroundColor: t.surface,
+                        transform: [{ scale: resolvedScale }] as any,
+                        // @ts-ignore
+                        transformOrigin: 'top left',
+                      }]}>
+                        <DefaultScreen />
+                      </View>
+                    </View>
+                  </View>
+                </PlaygroundThemeContext.Provider>
+              ) : (<>
               <View style={[s.scaleBar, { borderBottomColor: t.border }]}>
                 {SCALE_OPTIONS.map(opt => {
                   const active = opt === scale;
@@ -189,7 +272,7 @@ export const PlaygroundShell = () => {
                     }]}>
                       <PlaygroundThemeContext.Provider value={{ isDark: darkMode, colors: darkMode ? darkColors : lightColors }}>
                         <NavigationContainer key={flowKey} independent>
-                          <ActiveFlow />
+                          {ActiveFlow && <ActiveFlow />}
                         </NavigationContainer>
                       </PlaygroundThemeContext.Provider>
                     </View>
@@ -205,13 +288,14 @@ export const PlaygroundShell = () => {
                     }]}>
                       <PlaygroundThemeContext.Provider value={{ isDark: darkMode, colors: darkMode ? darkColors : lightColors }}>
                         <NavigationContainer key={flowKey} independent>
-                          <ActiveFlow />
+                          {ActiveFlow && <ActiveFlow />}
                         </NavigationContainer>
                       </PlaygroundThemeContext.Provider>
                     </View>
                   </View>
                 </ScrollView>
               )}
+              </>)}
             </View>
           </>
         )}
@@ -233,7 +317,7 @@ const s = StyleSheet.create({
   toggle:           { paddingVertical: Spacing[1], paddingHorizontal: Spacing[3], borderRadius: Radius.full, borderWidth: 1 },
   toggleLabel:      { fontSize: FontSize.base },
   body:             { flex: 1, flexDirection: 'row' },
-  sidebar:          { width: 180, borderRightWidth: 1, paddingTop: Spacing[4], paddingHorizontal: Spacing[3], gap: Spacing[1] },
+  sidebar:          { width: 180, borderRightWidth: 1, paddingTop: Spacing[4], paddingHorizontal: Spacing[3], gap: Spacing[1], paddingBottom: Spacing[4] },
   navItem:          { paddingVertical: Spacing[2], paddingHorizontal: Spacing[3], borderRadius: Radius.lg },
   navLabel:         { fontSize: FontSize.sm, fontWeight: FontWeight.medium as any },
   navLabelActive:   { fontWeight: FontWeight.semibold as any },
@@ -245,4 +329,12 @@ const s = StyleSheet.create({
   scaleBtnLabel:    { fontSize: FontSize.xs, fontWeight: FontWeight.medium as any },
   phoneWrapper:     { alignItems: 'center', padding: Spacing[8] },
   phoneCanvas:      { width: PHONE_W, height: PHONE_H, overflow: 'hidden' },
+  howToBtn:         { marginTop: 'auto', marginHorizontal: Spacing[3], paddingVertical: Spacing[2], paddingHorizontal: Spacing[3], borderRadius: Radius.lg, borderWidth: 1, alignItems: 'center' },
+  howToBtnLabel:    { fontSize: FontSize.xs, fontWeight: FontWeight.medium as any },
+});
+
+const s2 = StyleSheet.create({
+  backdrop:    { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', alignItems: 'center' },
+  sheet:       { width: 400, borderRadius: Radius['2xl'], padding: Spacing[6], gap: Spacing[5] },
+  sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 });

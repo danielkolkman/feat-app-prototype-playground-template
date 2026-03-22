@@ -1,12 +1,17 @@
 /**
- * Design System Tokens
- * Source: Figma Design System — node 9762-187
- * Update values below with your exact Figma variable values.
+ * src/tokens/index.ts
+ *
+ * Replace the values below with your project's design tokens.
+ * The Palette is used by the playground shell — keep the neutral
+ * scale intact so the viewer chrome looks correct.
+ *
+ * See examples/tokens/index.ts for a full reference implementation.
  */
 
-// ─── COLOR PRIMITIVES ──────────────────────────────────────────────────────
+// ─── COLOR PRIMITIVES ────────────────────────────────────────────────────────
+// ✏️  Replace primary colors with your brand palette.
 export const Palette = {
-  // Primary
+  // Primary — replace with your brand color
   primary50:  '#EEF2FF',
   primary100: '#E0E7FF',
   primary200: '#C7D2FE',
@@ -18,7 +23,7 @@ export const Palette = {
   primary800: '#3730A3',
   primary900: '#312E81',
 
-  // Neutral
+  // Neutral — used by the playground shell, keep these
   neutral0:   '#FFFFFF',
   neutral50:  '#F8FAFC',
   neutral100: '#F1F5F9',
@@ -31,7 +36,7 @@ export const Palette = {
   neutral800: '#1E293B',
   neutral900: '#0F172A',
 
-  // Semantic
+  // Semantic — replace with your status colors
   success50:  '#F0FDF4',
   success500: '#22C55E',
   success700: '#15803D',
@@ -49,56 +54,52 @@ export const Palette = {
   info700:    '#1D4ED8',
 } as const;
 
-// ─── SEMANTIC COLOR TOKENS ──────────────────────────────────────────────────
+// ─── SEMANTIC COLOR TOKENS ───────────────────────────────────────────────────
+// ✏️  Map these to your Palette values.
 export const Colors = {
-  // Brand
   brandPrimary:   Palette.primary600,
   brandSecondary: Palette.primary400,
 
-  // Background
   bgBase:         Palette.neutral0,
   bgSubtle:       Palette.neutral50,
   bgMuted:        Palette.neutral100,
   bgInverse:      Palette.neutral900,
 
-  // Surface
   surfaceDefault: Palette.neutral0,
   surfaceRaised:  Palette.neutral50,
   surfaceOverlay: Palette.neutral100,
 
-  // Text
   textPrimary:    Palette.neutral900,
   textSecondary:  Palette.neutral600,
   textDisabled:   Palette.neutral400,
   textInverse:    Palette.neutral0,
   textLink:       Palette.primary600,
 
-  // Border
   borderDefault:  Palette.neutral200,
   borderStrong:   Palette.neutral400,
   borderFocus:    Palette.primary500,
 
-  // Status
   statusSuccess:  Palette.success500,
   statusWarning:  Palette.warning500,
   statusError:    Palette.error500,
   statusInfo:     Palette.info500,
 } as const;
 
-// ─── TYPOGRAPHY ─────────────────────────────────────────────────────────────
+// ─── TYPOGRAPHY ──────────────────────────────────────────────────────────────
+// ✏️  Replace with your typeface names.
 export const FontFamily = {
-  sans:       'Inter',
-  display:    'Inter',
-  mono:       'JetBrains Mono',
+  sans:    'System',
+  display: 'System',
+  mono:    'monospace',
 } as const;
 
 export const FontSize = {
-  xs:   10,
-  sm:   12,
-  base: 14,
-  md:   16,
-  lg:   18,
-  xl:   20,
+  xs:    10,
+  sm:    12,
+  base:  14,
+  md:    16,
+  lg:    18,
+  xl:    20,
   '2xl': 24,
   '3xl': 28,
   '4xl': 32,
@@ -127,7 +128,7 @@ export const LetterSpacing = {
   wider:   1,
 } as const;
 
-// ─── SPACING ────────────────────────────────────────────────────────────────
+// ─── SPACING ─────────────────────────────────────────────────────────────────
 export const Spacing = {
   0:   0,
   0.5: 2,
@@ -151,7 +152,7 @@ export const Spacing = {
   24:  96,
 } as const;
 
-// ─── BORDER RADIUS ──────────────────────────────────────────────────────────
+// ─── BORDER RADIUS ───────────────────────────────────────────────────────────
 export const Radius = {
   none:  0,
   xs:    2,
@@ -164,61 +165,31 @@ export const Radius = {
   full:  9999,
 } as const;
 
-// ─── SHADOWS ────────────────────────────────────────────────────────────────
+// ─── SHADOWS ─────────────────────────────────────────────────────────────────
 export const Shadow = {
-  none: {
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0,
-    shadowRadius: 0,
-    elevation: 0,
-  },
-  sm: {
-    shadowColor: Palette.neutral900,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  md: {
-    shadowColor: Palette.neutral900,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  lg: {
-    shadowColor: Palette.neutral900,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 6,
-  },
-  xl: {
-    shadowColor: Palette.neutral900,
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.16,
-    shadowRadius: 24,
-    elevation: 10,
-  },
+  none: { shadowColor: 'transparent', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0, shadowRadius: 0, elevation: 0 },
+  sm:   { shadowColor: Palette.neutral900, shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2,  elevation: 1 },
+  md:   { shadowColor: Palette.neutral900, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 8,  elevation: 3 },
+  lg:   { shadowColor: Palette.neutral900, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.12, shadowRadius: 16, elevation: 6 },
+  xl:   { shadowColor: Palette.neutral900, shadowOffset: { width: 0, height: 16 }, shadowOpacity: 0.16, shadowRadius: 24, elevation: 10 },
 } as const;
 
-// ─── ANIMATION ──────────────────────────────────────────────────────────────
+// ─── ANIMATION ───────────────────────────────────────────────────────────────
 export const Duration = {
-  instant:  0,
-  fast:     100,
-  normal:   200,
-  slow:     300,
-  slower:   500,
+  instant: 0,
+  fast:    100,
+  normal:  200,
+  slow:    300,
+  slower:  500,
 } as const;
 
-// ─── ICON SIZE ──────────────────────────────────────────────────────────────
+// ─── ICON SIZE ────────────────────────────────────────────────────────────────
 export const IconSize = {
-  xs:  12,
-  sm:  16,
-  md:  20,
-  lg:  24,
-  xl:  32,
+  xs: 12,
+  sm: 16,
+  md: 20,
+  lg: 24,
+  xl: 32,
 } as const;
 
 // ─── Z-INDEX ─────────────────────────────────────────────────────────────────
