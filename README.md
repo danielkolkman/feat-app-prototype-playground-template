@@ -1,73 +1,195 @@
-# React Native Design System Prototype
+# RN Design Playground
 
-Built from Figma Design System tokens — node `9762-187`.
+A browser-based playground for previewing React Native components and prototyping app flows — no device or simulator needed.
 
-## 📁 Project Structure
+![Tabs: Screens | Components | Tokens](https://placehold.co/800x400?text=Playground+Preview)
 
-```
-rn-prototype/
-├── App.tsx                        # Entry point
-└── src/
-    ├── tokens/
-    │   └── index.ts               # ← All design tokens live here
-    ├── components/
-    │   ├── Button.tsx             # Button (5 variants × 3 sizes)
-    │   ├── Typography.tsx         # Typography (16 variants)
-    │   └── index.tsx              # Card, Badge, InputField, Avatar, Divider
-    └── screens/
-        └── HomeScreen.tsx         # Prototype showcase screen
-```
+---
 
-## 🚀 Quick Start
+## What is this?
+
+This playground lets you:
+
+- **Browse components** — see every UI component in isolation with all its variants
+- **Preview design tokens** — explore your color palette, spacing scale, typography, and more
+- **Prototype flows** — build multi-screen app journeys with real navigation, previewed in a phone-sized canvas
+
+Everything runs in your web browser. No iPhone, no Android emulator required.
+
+---
+
+## Prerequisites
+
+You need two tools installed before you start. If you already have them, skip ahead.
+
+### 1. Homebrew (Mac only)
+Homebrew is a package manager for macOS. Open **Terminal** and run:
 
 ```bash
-# With Expo
-npx create-expo-app@latest my-app --template blank-typescript
-# Copy src/ and App.tsx into your project
-npx expo start
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-## 🎨 Updating Tokens from Figma
+Follow the on-screen instructions. This takes a few minutes.
 
-All tokens are in `src/tokens/index.ts`. To sync with your Figma variables:
+### 2. Node.js
+Node.js is the runtime that powers the playground server. Once Homebrew is installed, run:
 
-1. Open the Figma file: https://www.figma.com/design/NLYw92wgS9n4UlniqDC44A/Design-System
-2. Go to **Edit → Variables** (or the Variables panel)
-3. Map each Figma variable to the corresponding constant in `tokens/index.ts`
+```bash
+brew install node
+```
 
-Key sections to update:
-- `Palette.*` — color primitives
-- `Colors.*` — semantic color aliases
-- `FontSize.*` — type scale
-- `Spacing.*` — spacing scale
-- `Radius.*` — border radii
-- `Shadow.*` — elevation / shadow tokens
+Verify it worked:
 
-## 🌿 Creating a Figma Branch
+```bash
+node --version   # should print something like v25.x.x
+npm --version    # should print something like 11.x.x
+```
 
-1. Open the file: https://www.figma.com/design/NLYw92wgS9n4UlniqDC44A/Design-System
-2. Click the **▼ arrow** next to the file name at the top
-3. Select **"Create branch…"**
-4. Name the branch: `prototype/react-native-test`
-5. Click **Create branch**
+---
 
-The branch will be a full copy of the main file. Work on your prototype frames there
-without affecting the main design system.
+## Installation
 
-## 🧩 Components
+### Step 1 — Clone the repo
 
-| Component    | Variants / Props                              |
-|-------------|-----------------------------------------------|
-| `Button`    | primary, secondary, ghost, outline, destructive × sm/md/lg |
-| `Typography`| 16 variants: display, heading, body, label, caption, overline, code |
-| `Card`      | default, outlined, elevated, filled           |
-| `Badge`     | default, success, warning, error, info        |
-| `InputField`| label, hint, error, left/right elements       |
-| `Avatar`    | xs/sm/md/lg/xl, initials or image src         |
-| `Divider`   | horizontal, vertical, with optional label     |
+```bash
+git clone git@github.com:danielkolkman/feat-app-prototype-playground-template.git
+cd feat-app-prototype-playground-template
+```
 
-## 📦 Dependencies
+> If you don't have SSH set up with GitHub, use the HTTPS URL instead:
+> `git clone https://github.com/danielkolkman/feat-app-prototype-playground-template.git`
 
-All components use only React Native core APIs — no third-party UI library needed.
+### Step 2 — Install dependencies
 
-Optional for icons: `@expo/vector-icons` or `lucide-react-native`
+```bash
+npm install
+```
+
+This downloads all the packages the project needs. It will take a minute or two.
+
+### Step 3 — Start the playground
+
+```bash
+npm run web
+```
+
+Once you see `Waiting on http://localhost:8081`, open your browser and go to:
+
+```
+http://localhost:8081
+```
+
+You should see the playground with three tabs: **Screens**, **Components**, and **Tokens**.
+
+---
+
+## Using the Playground
+
+### Components tab
+Browse all UI components. Click a component name in the left sidebar to preview it with all its variants.
+
+### Tokens tab
+Explore the design tokens behind the components — colors, spacing, typography, border radius, shadows, and more. The source file is shown at the top of the sidebar.
+
+### Screens tab
+Preview app flows in a phone-sized canvas (390×844). Use the scale controls (Fit / 25% / 50% / 75% / 100%) in the top-right to zoom in or out.
+
+---
+
+## Customising for a new project
+
+This playground is designed to be forked and reused. Here's what to change:
+
+### 1. Replace the tokens
+Edit `src/tokens/index.ts` with your project's design values. This single file controls all colors, spacing, typography, radius, and shadows used across every component.
+
+### 2. Replace the components
+Drop your React Native components into `src/components/`. Then create a preview screen for each one in `src/screens/`.
+
+### 3. Register everything
+Open `src/playground.config.ts` — this is the **only file you need to edit** to wire up your components and flows:
+
+```ts
+// src/playground.config.ts
+
+import { MyButtonScreen } from './screens/MyButtonScreen';
+import { FLOWS } from './flows';
+
+export const COMPONENTS = [
+  { name: 'Button', component: MyButtonScreen },
+  // add more here...
+];
+
+export { FLOWS };
+```
+
+### 4. Add a flow
+Create a folder in `src/flows/` with your screens and a navigator:
+
+```
+src/flows/
+  MyFlow/
+    index.tsx        ← navigator (copy from OnboardingFlow as template)
+    ScreenOne.tsx
+    ScreenTwo.tsx
+```
+
+Then register it in `src/flows/index.ts`:
+
+```ts
+import { MyFlow } from './MyFlow';
+
+export const FLOWS = [
+  { name: 'My Flow', component: MyFlow },
+];
+```
+
+---
+
+## Project structure
+
+```
+App.tsx                        ← entry point (don't edit)
+src/
+  playground.config.ts         ← ✏️  edit this to register components & flows
+  _shell/                      ← playground framework (don't edit)
+    PlaygroundShell.tsx
+    TokensViewer.tsx
+  tokens/
+    index.ts                   ← ✏️  your design tokens
+  components/                  ← ✏️  your React Native components
+  screens/                     ← ✏️  component preview screens
+  flows/                       ← ✏️  app flows for the Screens tab
+    index.ts                   ← ✏️  register flows here
+    OnboardingFlow/            ← example flow
+```
+
+---
+
+## Troubleshooting
+
+**`npm: command not found`**
+Node.js isn't installed or isn't on your PATH. Follow the Prerequisites section again and restart Terminal.
+
+**Port 8081 is already in use**
+Another process is using that port. Run `npx expo start --web --port 8082` to use a different one.
+
+**Blank screen in the browser**
+Wait a few seconds — Metro bundler needs time to compile on first load. If it stays blank, check the Terminal for error messages.
+
+**`node_modules` is missing**
+Run `npm install` in the project folder.
+
+---
+
+## Tech stack
+
+| Tool | Purpose |
+|---|---|
+| React Native | Component primitives (View, Text, etc.) |
+| Expo | Web bundling and dev server |
+| React Navigation | In-flow screen navigation |
+| TypeScript | Type safety |
+| Metro | JavaScript bundler |
+
+All components use only React Native core APIs — no third-party UI library. They work on iOS and Android as-is.
